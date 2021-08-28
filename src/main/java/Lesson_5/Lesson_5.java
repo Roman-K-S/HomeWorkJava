@@ -21,10 +21,22 @@ class Employee {
         return age;
     }
 
-    public void info(){
-        System.out.printf("Fullname: %s, Position: %s, Email: %s, Phone: %d, Salary: %d, Age: %d",fullname,
-                position, email, phone, salary, age);
+    @Override
+    public String toString() {
+        return "Employee{" +
+                "fullname='" + fullname + '\'' +
+                ", position='" + position + '\'' +
+                ", email='" + email + '\'' +
+                ", phone=" + phone +
+                ", salary=" + salary +
+                ", age=" + age +
+                '}';
     }
+
+//    public void info(){
+//        System.out.printf("Fullname: %s, Position: %s, Email: %s, Phone: %d, Salary: %d, Age: %d",fullname,
+//                position, email, phone, salary, age);
+//    }
 
 }
 
@@ -44,8 +56,8 @@ public class Lesson_5{
 
         for (Employee temp : employee){
             if(temp.getAge() > 40){
-                temp.info();
-                System.out.println();
+                //temp.info();
+                System.out.println(temp);
             }
         }
     }
