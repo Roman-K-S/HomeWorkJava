@@ -11,12 +11,14 @@ public class Plate {
         this.food = food;
     }
 
-    public void decreaseFood(int needFood){
+    public boolean decreaseFood(int needFood){
         if ((this.food-needFood) <= 0){
             System.out.println("В тарелке закончилась еда.");
             this.food = 0;
+            return false;
         }else{
             this.food -= needFood;
+            return true;
         }
     }
 
