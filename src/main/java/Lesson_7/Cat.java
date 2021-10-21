@@ -26,9 +26,8 @@ public class Cat {
             if (appetite > p.getFood()) {
                 System.out.printf("КотЭ %s с аппетитом %d видит дно! И есть не будет. %n", name, appetite);
             } else {
-                p.decreaseFood(appetite);
+                satiety = p.decreaseFood(appetite);
                 System.out.printf("КотЭ %s съел: %d. В тарелке осталось: %d %n", name, appetite, p.getFood());
-                satiety = true;
             }
         } // end eat
     }
