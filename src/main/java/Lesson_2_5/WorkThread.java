@@ -4,7 +4,7 @@ import javax.swing.plaf.synth.SynthLookAndFeel;
 import java.util.Arrays;
 
 public class WorkThread {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         methodA();
         methodB();
     }
@@ -27,7 +27,7 @@ public class WorkThread {
 
     }
 
-    public static void methodB(){
+    public static void methodB() throws InterruptedException {
         int size = 10_000_000;
         int half = size/2;
 
@@ -56,12 +56,16 @@ public class WorkThread {
 
         thread1.start();
         thread2.start();
+        thread1.join();
+        thread2.join();
 
         float[] mergedArray = new float[size];
         System.arraycopy(leftHalf, 0 , mergedArray, 0, half);
         System.arraycopy(rightHalf, 0 , mergedArray, half, half);
 
         System.out.println("Two thread time: " + (System.currentTimeMillis() - startTime) + " ms.");
+
+        System.out.println("Test End with join");
 
     }
 }
