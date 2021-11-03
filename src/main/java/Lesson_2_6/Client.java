@@ -81,10 +81,9 @@ public class Client {
 
         Client cl = new Client();
 
-        while (msgInput.toString() != "\\end") {
-            if (!msgInput.toString().isEmpty()) {
+        while (msgInput.toString() != "/end") {
                 cl.sendMessage(msgInput.nextLine());
-            }
         }
+        cl.closeConnection();
     }
 }

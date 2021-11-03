@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Server {
     public static void main(String[] args) {
@@ -15,12 +16,18 @@ public class Server {
             System.out.println("Клиент подключился.");
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+
+            Scanner msgInput = new Scanner(System.in);
+
             while (true){
-                String str = in.readUTF();
-                if (str.equals("/end")){
+                String strFromClient = in.readUTF();
+                System.out.println(strFromClient);
+                if (strFromClient.equals("/end") || msgInput.toString() == "/end"){
                     break;
                 }
-                out.writeUTF("Лови эхо: " + str);
+                if (!msgInput.toString().isEmpty()) {
+                    out.writeUTF(msgInput.nextLine());
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
