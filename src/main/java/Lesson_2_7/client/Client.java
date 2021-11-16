@@ -34,32 +34,53 @@ public class Client extends JFrame {
         socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
         in = new DataInputStream(socket.getInputStream());
         out = new DataOutputStream(socket.getOutputStream());
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        String strFromServer = in.readUTF();
-                        if(strFromServer.startsWith(AUTH_OK_COMMAND)) {
-                            String[] tokens = strFromServer.split("\\s+");
-                            this.login = tokens[1];
-                            chatArea.append("Авторизация логина " + login + " прошла успешно.");
-                            chatArea.append("\n");
-                        }
-                        chatArea.append(strFromServer + "\n");
-                    }
-                    while (true) {
-                        String strFromServer = in.readUTF();
-                        if (strFromServer.equalsIgnoreCase("/end")) {
-                            break;
-                        }
-                        chatArea.append(strFromServer);
+        new Thread(() -> {
+            try {
+                while (true) {
+                    String messageFromServer = in.readUTF();
+                    if (messageFromServer.equals("/end")) {
+                        break;
+                    } else if (messageFromServer.startsWith(Const.AUTH_OK_COMMAND)) {
+                        String[] tokens = messageFromServer.split("\\s+");
+                        this.login = tokens[1];
+                        chatArea.append("Успешно авторизован как " + login);
+                        chatArea.append("\n");
+                    }else if (messageFromServer.startsWith(Const.CLIENTS_LIST_COMMAND)) {
+                        //список клиентов
+                    } else {
+                        chatArea.append(messageFromServer);
                         chatArea.append("\n");
                     }
-                }catch (Exception e) {
-                    e.printStackTrace();
                 }
+                chatArea.append("Соединение разорвано");
+                msgInputField.setEnabled(false);
+                closeConnection();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+//                try {
+//                    while (true) {
+//                        String strFromServer = in.readUTF();
+//                        if(strFromServer.startsWith(AUTH_OK_COMMAND)) {
+//                            String[] tokens = strFromServer.split("\\s+");
+//                            this.login = tokens[1];
+//  --> Не видно логина в анонимном классе.
+//                            chatArea.append("Авторизация логина " + login + " прошла успешно.");
+//                            chatArea.append("\n");
+//                        }
+//                        chatArea.append(strFromServer + "\n");
+//                    }
+//                    while (true) {
+//                        String strFromServer = in.readUTF();
+//                        if (strFromServer.equalsIgnoreCase("/end")) {
+//                            break;
+//                        }
+//                        chatArea.append(strFromServer);
+//                        chatArea.append("\n");
+//                    }
+//                }catch (Exception e) {
+//                    e.printStackTrace();
+//                }
         }).start();
     }  // end openConnection
 
@@ -87,7 +108,7 @@ public class Client extends JFrame {
         //windows param
         setBounds(600, 300, 500, 500);
         setTitle("Chat");
-        setDefaultCloseOperation( WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         //Text Area
         chatArea = new JTextArea();
@@ -102,25 +123,30 @@ public class Client extends JFrame {
         msgInputField = new JTextField();
         add(bottomPanel, BorderLayout.SOUTH);
         bottomPanel.add(msgInputField, BorderLayout.CENTER);
+
         btnSendMsg.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 sendMessage();
             }
         });
+
         msgInputField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 sendMessage();
             }
         });
-        // Set windows close Action
+
+        /**
+         * Windows close Action
+         */
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
                 try {
-                    out.writeUTF("/end");
+                    out.writeUTF(END_COMMAND);
                     closeConnection();
                 } catch (IOException exc) {
                     exc.printStackTrace();

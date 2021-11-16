@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class ClientHandler {
     private MyServer myServer;
@@ -68,9 +69,14 @@ public class ClientHandler {
             String strFromClient = in.readUTF();
             if (strFromClient.startsWith(Const.CLIENTS_LIST_COMMAND)) {
                 sendMsg(myServer.getActiveClients());
+            } else if (strFromClient.startsWith(Const.CLIENTS_WHISPER)) {
+                String[] tokens = strFromClient.split("\\s+");
+                int serviceTokenLength = tokens[0].length()+ tokens[1].length();
+                String whisperMsg = (name + " шепчет: " + strFromClient.substring(serviceTokenLength + 1));
+                myServer.whisper(tokens[1], whisperMsg);
             } else {
-                System.out.println("от " + name + ": " + strFromClient);
-                if (strFromClient.equals("/end")) {
+                System.out.println("от " + name + ": " + strFromClient); // логирование сообщений в консоль
+                if (strFromClient.equals(Const.END_COMMAND)) {
                     return;
                 }
                 myServer.broadcastMsg(name + ": " + strFromClient);
@@ -79,16 +85,15 @@ public class ClientHandler {
     }
 
 
-
     private void authentication() throws IOException{
         while (true){
             String str = in.readUTF();
-            if (str.startsWith("/auth")) {
+            if (str.startsWith(Const.AUTH_COMMAND)) {
                 String[] parts = str.split("\\s+");
                 String nick = myServer.getAuthService().getNickByLoginPass(parts[1],parts[2]);
                 if (nick != null) {
                     if (!myServer.isNickBusy(nick)) {
-                        sendMsg("/authok " + nick);
+                        sendMsg(Const.AUTH_OK_COMMAND + " " + nick);
                         name = nick;
                         myServer.broadcastMsg(name + " зашёл в чат");
                         myServer.subscribe(this);

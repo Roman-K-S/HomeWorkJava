@@ -55,6 +55,14 @@ public class MyServer {
         }
     }
 
+    public synchronized void whisper (String nick, String msg) {
+        for (ClientHandler o : clients){
+            if (o.getName().equals(nick)) {
+                o.sendMsg(msg);
+            }
+        }
+    }
+
     public synchronized void unsubscribe (ClientHandler o) {
         clients.remove(o);
     }
@@ -64,10 +72,16 @@ public class MyServer {
     }
 
     public synchronized String getActiveClients() {
-        StringBuilder sb = new StringBuilder(Const.CLIENTS_LIST_COMMAND).append(" ");
-        sb.append(clients.stream())
+        StringBuilder sb = new StringBuilder();
+        sb.append(clients.stream()
                 .map(c -> c.getName())
-                .collect(Collectors.joining(" "));
+                .collect(Collectors.joining(" "))
+        );
         return sb.toString();
+
+        /*for (ClientHandler clientHandler : clients) {
+            sb.append(clientHandler.getName()).append(" ");
+        }*/
+
     } // end getActiveClients
 }
