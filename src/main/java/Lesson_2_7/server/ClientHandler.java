@@ -6,7 +6,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class ClientHandler {
     private MyServer myServer;
@@ -15,9 +14,18 @@ public class ClientHandler {
     private DataOutputStream out;
 
     private String name;
+    private boolean authorized;
 
     public String getName() {
         return name;
+    }
+
+    public boolean isAuthorized() {
+        return authorized;
+    }
+
+    public void setAuthorized(boolean authorized) {
+        this.authorized = authorized;
     }
 
     public ClientHandler(MyServer myServer, Socket socket){
@@ -27,6 +35,7 @@ public class ClientHandler {
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
             this.name = "";
+            this.authorized = false;
             new Thread(() -> {
                 try {
                     authentication();
@@ -35,6 +44,36 @@ public class ClientHandler {
                     e.printStackTrace();
                 } finally {
                     closeConnection();
+                }
+            }).start();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    int counterTimeAuth = 120;
+                    while (true) {
+                        int finalCounterTimeAuth = counterTimeAuth;
+                        if (finalCounterTimeAuth == 0 && !isAuthorized()) {
+                            sendMsg("Время вышло. Закрываем соединение");
+                            closeConnection();
+                            break;
+                        }else if(isAuthorized()){
+                            break;
+                        }
+                        Thread t1 = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                sendMsg("Время на авторизацию: " + finalCounterTimeAuth + " секунд " + isAuthorized());
+                            }
+                        });
+                        t1.start();
+                        counterTimeAuth -= 5;
+                        try {
+                            t1.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }).start();
         } catch (IOException e) {
@@ -84,7 +123,6 @@ public class ClientHandler {
         }
     }
 
-
     private void authentication() throws IOException{
         while (true){
             String str = in.readUTF();
@@ -94,6 +132,7 @@ public class ClientHandler {
                 if (nick != null) {
                     if (!myServer.isNickBusy(nick)) {
                         sendMsg(Const.AUTH_OK_COMMAND + " " + nick);
+                        setAuthorized(true);
                         name = nick;
                         myServer.broadcastMsg(name + " зашёл в чат");
                         myServer.subscribe(this);

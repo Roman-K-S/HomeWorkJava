@@ -22,12 +22,25 @@ public class Client extends JFrame {
     private String login;
 
     public Client(){
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                prepareGUI();
+            }
+        });
+        t.start();
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         try {
             openConnection();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        prepareGUI();
+
     }
 
     private void openConnection() throws IOException {
@@ -38,7 +51,7 @@ public class Client extends JFrame {
             try {
                 while (true) {
                     String messageFromServer = in.readUTF();
-                    if (messageFromServer.equals("/end")) {
+                    if (messageFromServer.equals(END_COMMAND)) {
                         break;
                     } else if (messageFromServer.startsWith(Const.AUTH_OK_COMMAND)) {
                         String[] tokens = messageFromServer.split("\\s+");

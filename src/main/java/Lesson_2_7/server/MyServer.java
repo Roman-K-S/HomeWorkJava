@@ -65,10 +65,12 @@ public class MyServer {
 
     public synchronized void unsubscribe (ClientHandler o) {
         clients.remove(o);
+        getActiveClients();
     }
 
     public synchronized void subscribe (ClientHandler o) {
         clients.add(o);
+        getActiveClients();
     }
 
     public synchronized String getActiveClients() {
