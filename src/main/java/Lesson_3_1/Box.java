@@ -4,11 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Box <T extends Fruit> {
+    private double weight;
     private List<T> fruits = new ArrayList<>();
-    private int number;
 
-    public double getWeight(double fruitWeight){
-        return number * fruitWeight;
+    public void calculateWeight() {
+        double fullWeight = 0;
+        for (Fruit fruit : fruits){
+             fullWeight += fruit.getWeight();
+        }
+        this.weight = fullWeight; 
+    }
+
+    public void addFruit(T fruit, int number){
+            for (int i = 0; i < number; i++) {
+                fruits.add(fruit);
+            }
+            calculateWeight();
+    }
+
+    public double getWeight() {
+        return weight;
     }
 
     public boolean compareBox(Box<?> another){
