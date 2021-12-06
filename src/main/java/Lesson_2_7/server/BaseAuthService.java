@@ -39,6 +39,10 @@ public class BaseAuthService implements AuthService{
     }
 
     @Override
+    public void changeNick(String nick, String newNick) {
+    }
+
+    @Override
     public void stop() {
         System.out.println("Сервис аутентификации остановлен");
     }

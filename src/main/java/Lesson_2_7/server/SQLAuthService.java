@@ -40,6 +40,17 @@ public class SQLAuthService implements AuthService{
         return null;
     }
 
+    public void changeNick(String nick, String newNick){
+        try (PreparedStatement ps = connection.prepareStatement(
+                "UPDATE users SET nick = ? WHERE nick = ?")) {
+            ps.setString(1, newNick);
+            ps.setString(2, nick);
+            ps.executeUpdate();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void stop() {
         disconnect();
