@@ -23,4 +23,6 @@ public class Const {
     public static final String CLIENTS_LIST_COMMAND = "/clients";
 
     public static final String CLIENTS_WHISPER = "/w";
+
+    public static final String CHANGE_NICK = "/newnick";
 }

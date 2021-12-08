@@ -111,8 +111,15 @@ public class ClientHandler {
             } else if (strFromClient.startsWith(Const.CLIENTS_WHISPER)) {
                 String[] tokens = strFromClient.split("\\s+");
                 int serviceTokenLength = tokens[0].length()+ tokens[1].length();
-                String whisperMsg = (name + " шепчет: " + strFromClient.substring(serviceTokenLength + 1));
-                myServer.whisper(tokens[1], whisperMsg);
+                String whisperMsgTo = ("Вам шепчет " + name + ": " + strFromClient.substring(serviceTokenLength + 1));
+                String whisperMsgFrom = ("Вы шепнули " + tokens[1] + ": " + strFromClient.substring(serviceTokenLength + 1));
+                myServer.whisper(tokens[1], whisperMsgTo);
+                myServer.whisper(this.name, whisperMsgFrom);
+            } else if (strFromClient.startsWith(Const.CHANGE_NICK)) {
+                String[] tokens = strFromClient.split("\\s+");
+                myServer.getAuthService().changeNick(this.name, tokens[1]);
+                myServer.broadcastMsg(this.name + " сменил ник на: " + tokens[1]);
+                this.name = tokens[1];
             } else {
                 System.out.println("от " + name + ": " + strFromClient); // логирование сообщений в консоль
                 if (strFromClient.equals(Const.END_COMMAND)) {
