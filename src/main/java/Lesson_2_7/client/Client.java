@@ -3,11 +3,10 @@ package Lesson_2_7.client;
 import Lesson_2_7.constants.Const;
 
 import javax.swing.*;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 import static Lesson_2_7.constants.Const.*;
@@ -19,7 +18,11 @@ public class Client extends JFrame {
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
+    private BufferedReader readFile;
+    private BufferedWriter writeFile;
     private String login;
+    private static File logFile;
+
 
     public Client(){
         Thread t = new Thread(new Runnable() {
@@ -43,6 +46,41 @@ public class Client extends JFrame {
 
     }
 
+    private void logToFile(String msgFromServ){
+        if(!logFile.exists()){
+            try {
+                logFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            writeFile = new BufferedWriter(new FileWriter(logFile,true));
+            writeFile.write(msgFromServ);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void readLogFile (){
+        try {
+            readFile = new BufferedReader(new FileReader(logFile));
+            int count = 100;
+            String str;
+            while ((str = readFile.readLine()) != null && count != 0) {
+                --count;
+                chatArea.append(str + "\n");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void openConnection() throws IOException {
         socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
         in = new DataInputStream(socket.getInputStream());
@@ -58,11 +96,19 @@ public class Client extends JFrame {
                         this.login = tokens[1];
                         chatArea.append("Успешно авторизован как " + login);
                         chatArea.append("\n");
+                        logFile = new File("history_" + this.login + ".txt");
+
+                        if(logFile.exists()) {
+                            readLogFile();
+                        }
                     }else if (messageFromServer.startsWith(Const.CLIENTS_LIST_COMMAND)) {
                         //список клиентов
                     } else {
                         chatArea.append(messageFromServer);
                         chatArea.append("\n");
+                        if(this.login != null) {
+                            logToFile(messageFromServer + "\n");
+                        }
                     }
                 }
                 chatArea.append("Соединение разорвано");
@@ -99,6 +145,16 @@ public class Client extends JFrame {
 
     private void closeConnection() {
         try {
+            writeFile.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            readFile.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
             in.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -109,7 +165,6 @@ public class Client extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         try {
             socket.close();
         } catch (IOException e) {
@@ -125,6 +180,8 @@ public class Client extends JFrame {
 
         //Text Area
         chatArea = new JTextArea();
+        DefaultCaret caret = (DefaultCaret)chatArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         chatArea.setEditable(false);
         chatArea.setLineWrap(true);
         add(new JScrollPane(chatArea), BorderLayout.CENTER);
