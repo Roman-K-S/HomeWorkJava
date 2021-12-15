@@ -6,12 +6,16 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class ClientHandler {
     private MyServer myServer;
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
+    ExecutorService service = Executors.newFixedThreadPool(2);
 
     private String name;
     private boolean authorized;
@@ -36,7 +40,7 @@ public class ClientHandler {
             this.out = new DataOutputStream(socket.getOutputStream());
             this.name = "";
             this.authorized = false;
-            new Thread(() -> {
+            service.execute(() -> {
                 try {
                     authentication();
                     readMessages();
@@ -45,9 +49,9 @@ public class ClientHandler {
                 } finally {
                     closeConnection();
                 }
-            }).start();
+            });
 
-            new Thread(new Runnable() {
+            service.execute(new Runnable() {
                 @Override
                 public void run() {
                     int counterTimeAuth = 120;
@@ -75,7 +79,7 @@ public class ClientHandler {
                         }
                     }
                 }
-            }).start();
+            });
         } catch (IOException e) {
             throw new RuntimeException("Проблемы при создании обработчика клиента");
         }
