@@ -18,15 +18,6 @@ public class SQLAuthService implements AuthService{
     }
 
     @Override
-//    public String getNickByLoginPass(String login, String pass) {
-//        try {
-//            readEx(login,pass);
-//            return
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
     public String getNickByLoginPass(String login, String pass) {
         try (PreparedStatement ps = connection.prepareStatement(
                 "SELECT nick FROM users WHERE login = ? AND pass = ?")) {
