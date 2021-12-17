@@ -16,7 +16,7 @@ public class Car implements Runnable {
     private int speed;
     private String name;
     private static boolean winner = false;
-    final Lock lock = new ReentrantLock();
+    final static Lock lock = new ReentrantLock();
 
     public static boolean isWinner() {
         return winner;
