@@ -123,6 +123,7 @@ public class ClientHandler {
             } else {
                 System.out.println("от " + name + ": " + strFromClient); // логирование сообщений в консоль
                 if (strFromClient.equals(Const.END_COMMAND)) {
+                    sendMsg("/end");
                     return;
                 }
                 myServer.broadcastMsg(name + ": " + strFromClient);
