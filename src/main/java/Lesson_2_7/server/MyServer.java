@@ -7,12 +7,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.util.stream.Collectors;
 
 public class MyServer {
 
     private List<ClientHandler> clients;
     private AuthService authService;
+    private static final Logger logger = LogManager.getLogger(MyServer.class);
 
     public  AuthService getAuthService() {
         return authService;
@@ -26,14 +29,14 @@ public class MyServer {
             clients = new ArrayList<>();
 
             while (true){
-                System.out.println("Сервер ожидает подключения");
+                logger.info("Сервер ожидает подключения");
                 Socket socket = server.accept();
-                System.out.println("Клиент подключился");
+                logger.info("Клиент подключился");
                 new ClientHandler(this, socket);
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Ошибка в работе сервера");
+            logger.error("Ошибка в работе сервера");
         } finally {
             if (authService != null) {
                 authService.stop();

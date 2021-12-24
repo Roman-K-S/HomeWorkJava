@@ -1,17 +1,21 @@
 package Lesson_2_7.server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.*;
 
 public class SQLAuthService implements AuthService{
     private static Connection connection;
     private static Statement stmt;
+    private static final Logger logger = LogManager.getLogger(SQLAuthService.class);
 
     @Override
     public void start() {
-        System.out.println("Сервис аутентификации запущен");
+        logger.info("Сервис аутентификации запущен");
         try {
             connect();
-            System.out.println("Связь с базой данных установлена");
+            logger.info("Связь с базой данных установлена");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -54,8 +58,8 @@ public class SQLAuthService implements AuthService{
     @Override
     public void stop() {
         disconnect();
-        System.out.println("Связь с базой данных разорвана");
-        System.out.println("Сервис аутентификации остановлен");
+        logger.info("Связь с базой данных разорвана");
+        logger.info("Сервис аутентификации остановлен");
     }
 
     private void connect() throws SQLException {
