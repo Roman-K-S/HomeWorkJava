@@ -1,6 +1,8 @@
 package Lesson_2_7.server;
 
 import Lesson_2_7.constants.Const;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -8,13 +10,16 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+
+
 
 public class ClientHandler {
     private MyServer myServer;
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
+    private static final Logger logger = LogManager.getLogger(ClientHandler.class);
+
     ExecutorService service = Executors.newFixedThreadPool(2);
 
     private String name;
@@ -125,7 +130,7 @@ public class ClientHandler {
                 myServer.broadcastMsg(this.name + " сменил ник на: " + tokens[1]);
                 this.name = tokens[1];
             } else {
-                System.out.println("от " + name + ": " + strFromClient); // логирование сообщений в консоль
+                logger.info("от " + name + ": " + strFromClient); // логирование сообщений в консоль и файл
                 if (strFromClient.equals(Const.END_COMMAND)) {
                     sendMsg("/end");
                     return;
