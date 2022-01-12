@@ -11,6 +11,8 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+
+
 public class ClientHandler {
     private MyServer myServer;
     private Socket socket;
@@ -43,7 +45,7 @@ public class ClientHandler {
             this.out = new DataOutputStream(socket.getOutputStream());
             this.name = "";
             this.authorized = false;
-            new Thread(() -> {
+            service.execute(() -> {
                 try {
                     authentication();
                     readMessages();
@@ -52,9 +54,9 @@ public class ClientHandler {
                 } finally {
                     closeConnection();
                 }
-            }).start();
+            });
 
-            new Thread(new Runnable() {
+            service.execute(new Runnable() {
                 @Override
                 public void run() {
                     int counterTimeAuth = 120;
@@ -82,7 +84,7 @@ public class ClientHandler {
                         }
                     }
                 }
-            }).start();
+            });
         } catch (IOException e) {
             throw new RuntimeException("Проблемы при создании обработчика клиента");
         }
@@ -130,6 +132,7 @@ public class ClientHandler {
             } else {
                 logger.info("от " + name + ": " + strFromClient); // логирование сообщений в консоль и файл
                 if (strFromClient.equals(Const.END_COMMAND)) {
+                    sendMsg("/end");
                     return;
                 }
                 myServer.broadcastMsg(name + ": " + strFromClient);
